@@ -42,7 +42,7 @@
 
 #include "chip.h"
 #include <stdbool.h>
-
+#include "digital.h"
 /* === Macros definitions ====================================================================== */
 
 #define LED_R_PORT 2
@@ -120,6 +120,7 @@
 /* === Public function implementation ========================================================= */
 
 int main(void) {
+    digital_output_t led_green = digital_output_create(LED_3_PORT, LED_3_PIN);
 
     int divisor  = 0;
     bool current_state, last_state = false;
@@ -186,6 +187,8 @@ int main(void) {
         if (divisor == 5) {
             divisor = 0;
             Chip_GPIO_SetPinToggle(LPC_GPIO_PORT, LED_3_GPIO, LED_3_BIT);
+            digital_output_toggle(led_green);
+            
         }
 
         for (int index = 0; index < 100; index++) {
