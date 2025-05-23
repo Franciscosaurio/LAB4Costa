@@ -1,5 +1,5 @@
 /*********************************************************************************************************************
-Copyright (c) 2024, Costa_Francisco Lucas Sebastian
+Copyright (c) 2025, Costa_Francisco Lucas Sebastian
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
@@ -22,7 +22,7 @@ SPDX-License-Identifier: MIT
  **/
 
 /* === Headers files inclusions ==================================================================================== */
-
+#include "chip.h"
 #include "digital.h"
 #include "config.h"
 #include <stdio.h>
@@ -39,13 +39,24 @@ SPDX-License-Identifier: MIT
 struct digital_output_s{
     uint8_t port; /*!< puerto al que pertenece la salida*/
     uint8_t pin; /*!< pin al que pertenece la salida*/
-    bool estado; /*!< estado de la salida*/
+    
 
 };
 // el fabricante me da las cosas para hacer el toggle
 //si no me las da lo mismo le puedo hacer un toggle
 // tenemos las funciones para hacer set, clear y toggle a nivel fisico
 
+
+
+/*! estructura que representa una entrada digital*/
+
+struct digital_input_s{
+    uint8_t port; /*!< puerto al que pertenece la entrada*/
+    uint8_t pin; /*!< pin al que pertenece la entrada*/
+    bool inverted; /*!< estado de la entrada*/
+    bool last_state;
+
+};
 
 /* === Private function declarations =============================================================================== */
 
@@ -68,6 +79,8 @@ digital_output_t digital_output_create(uint8_t port, uint8_t pin){
 
     }
     return self;
+    Chip_GPIO_SetPinState(LPC_GPIO_PORT, self->port, self->pin, false);
+    Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, self->port, self->pin, true);
 }
 //implemento una funcion implementando malloc,si le devolvio algo entonces recien asigna el puerto y pin
 //que recibio a la estructura
@@ -77,6 +90,7 @@ digital_output_t digital_output_create(uint8_t port, uint8_t pin){
 //de las funciones vacias y veo que siga funcionando
 
 void digital_output_activate(digital_output_t self){
+    
 
 }
 
@@ -85,6 +99,53 @@ void digital_output_deactivate(digital_output_t self){
 }
 
 void digital_output_toggle(digital_output_t self){
-    
+    Chip_GPIO_SetPinToggle(LPC_GPIO_PORT, self->port, self->pin);    
 }
+
+digital_input_t digital_input_create(uint8_t gpio, uint8_t bit, bool inverted){
+    digital_input_t self = malloc(sizeof(struct digital_input_s));
+    if (self != NULL){
+        self->port = gpio;
+        self->pin = bit;
+        self->inverted = inverted;
+        //inicializamos la variable
+        self->last_state=false;// digital_input_get_is_active(self); <- ¿cuando usar?// consultar
+        
+
+    }
+    return self;
+}
+
+bool digital_input_get_is_active(digital_input_t self){
+    bool state =true;// llama a la funcion del fabrbicante
+    if(self->inverted){
+        state = !state;
+    }
+    return state;
+}
+
+digital_states_t digital_was_changed(digital_input_t self){
+    digital_states_t result = DIGITAL_INPUT_NO_CHANGE;
+     
+    //debo leer el estado actual
+    // lo hago con mi funcion
+
+    bool state = digital_input_get_is_active(self);
+    if (state && !self->last_state){
+        result = DIGITAL_INPUT_WAS_ACTIVATED;
+
+    }else if(!state && self->last_state){
+        result=DIGITAL_INPUT_WAS_DEACTIVATE;
+    }
+    self->last_state=state;
+    return result;
+}
+
+bool digital_was_activated(digital_input_t self){
+    return DIGITAL_INPUT_WAS_ACTIVATED==digital_was_changed(self);
+}
+
+
+bool digital_was_deactivated(digital_input_t input);
 /* === End of documentation ======================================================================================== */
+
