@@ -57,61 +57,63 @@
 
 int main(void) {
     
-    digital_output_t led_blue = digital_output_create(LED_2_GPIO, LED_2_BIT);
-    digital_output_t led_red = digital_output_create(LED_1_GPIO, LED_1_BIT);
-
     int divisor  = 0;
     bool current_state, last_state = false;
 
-    Chip_SCU_PinMuxSet(LED_R_PORT, LED_R_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_INACT | LED_R_FUNC);
-    Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_R_GPIO, LED_R_BIT, false);
-    Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, LED_R_GPIO, LED_R_BIT, true);
+    // Creo las salidas digitales
+    digital_output_t led_red = digital_output_create(LED_R_GPIO, LED_R_BIT);
+    digital_output_t led_green = digital_output_create(LED_G_GPIO, LED_G_BIT);
+    digital_output_t led_blue = digital_output_create(LED_B_GPIO, LED_B_BIT);
+    digital_output_t led_1 = digital_output_create(LED_1_GPIO, LED_1_BIT);
+    digital_output_t led_2 = digital_output_create(LED_2_GPIO, LED_2_BIT);
+    digital_output_t led_3 = digital_output_create(LED_3_GPIO, LED_3_BIT);
 
-    Chip_SCU_PinMuxSet(LED_G_PORT, LED_G_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_INACT | LED_G_FUNC);
-    Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_G_GPIO, LED_G_BIT, false);
-    Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, LED_G_GPIO, LED_G_BIT, true);
 
-    Chip_SCU_PinMuxSet(LED_B_PORT, LED_B_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_INACT | LED_B_FUNC);
-    Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_B_GPIO, LED_B_BIT, false);
-    Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, LED_B_GPIO, LED_B_BIT, true);
 
-    /******************/
-    /*pasar a la funcion digital_output_create    */
-    Chip_SCU_PinMuxSet(LED_1_PORT, LED_1_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_INACT | LED_1_FUNC);
-    digital_output_activate(led_red);
+    // Creo las entradas digitales
+    digital_input_t tec_1 = digital_input_create(TEC_1_GPIO, TEC_1_BIT, true);
+    digital_input_t tec_2 = digital_input_create(TEC_2_GPIO, TEC_2_BIT, true);
+    digital_input_t tec_3 = digital_input_create(TEC_3_GPIO, TEC_3_BIT, true);
+    digital_input_t tec_4 = digital_input_create(TEC_4_GPIO, TEC_4_BIT, true);
 
-    Chip_SCU_PinMuxSet(LED_2_PORT, LED_2_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_INACT | LED_2_FUNC);
-    //Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_2_GPIO, LED_2_BIT, false);
-    //Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, LED_2_GPIO, LED_2_BIT, true);
 
-    digital_output_create(LED_2_GPIO, LED_2_BIT);
+while (true) {
+        if (digital_input_get_is_active(tec_1)) {
+            digital_output_activate(led_blue);
+        } else {
+            digital_output_deactivate(led_blue);
+        }
 
-    //config parte electrica
-    Chip_SCU_PinMuxSet(LED_3_PORT, LED_3_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_INACT | LED_3_FUNC);
-    //las 2 siguientes en create
-    // pone al gpio en 0 por el falso
-    //Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_3_GPIO, LED_3_BIT, false);
-    //lo pone como ssalida por el true en el dir
-    //Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, LED_3_GPIO, LED_3_BIT, true);
-    
-    digital_output_t led_green = digital_output_create(LED_3_GPIO, LED_3_BIT);
+        current_state = digital_input_get_is_active(tec_2);
+        if (current_state && !last_state) {
+            digital_output_toggle(led_1);
+        }
+        last_state = current_state;
 
-  
-    /******************/
-    //lo mismo pero en digital inputs?, si, en el crate el que no es pinmuxset, las otra queda
-    Chip_SCU_PinMuxSet(TEC_1_PORT, TEC_1_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_PULLUP | TEC_1_FUNC);
-    Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, TEC_1_GPIO, TEC_1_BIT, false);
+        if (digital_input_get_is_active(tec_3)) {
+            digital_output_activate(led_2);
+        }
 
-    Chip_SCU_PinMuxSet(TEC_2_PORT, TEC_2_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_PULLUP | TEC_2_FUNC);
-    Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, TEC_2_GPIO, TEC_2_BIT, false);
+        if (digital_input_get_is_active(tec_4)) {
+            digital_output_deactivate(led_2);
+        }
 
-    Chip_SCU_PinMuxSet(TEC_3_PORT, TEC_3_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_PULLUP | TEC_3_FUNC);
-    Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, TEC_3_GPIO, TEC_3_BIT, false);
+        divisor++;
+        if (divisor == 5) {
+            divisor = 0;
+            digital_output_toggle(led_3);
+        }
 
-    Chip_SCU_PinMuxSet(TEC_4_PORT, TEC_4_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_PULLUP | TEC_4_FUNC);
-    Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, TEC_4_GPIO, TEC_4_BIT, false);
-    /*****************/
+        for (int index = 0; index < 100; index++) {
+            for (int delay = 0; delay < 25000; delay++) {
+                __asm("NOP");
+            }
+        }
+    }
 
+    return 0;
+}
+    /*
     while (true) {
         if (Chip_GPIO_ReadPortBit(LPC_GPIO_PORT, TEC_1_GPIO, TEC_1_BIT) == 0) {
             Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_B_GPIO, LED_B_BIT, true);
@@ -150,7 +152,7 @@ int main(void) {
         }
     }
 }
-
+*/
 /* === End of documentation ==================================================================== */
 
 /** @} End of module definition for doxygen */
