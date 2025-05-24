@@ -59,8 +59,8 @@ typedef struct digital_input_s * digital_input_t;
  * la funcion crea un objeto de la clase salida digital
  * la locacion de memoria depende de la 
  * @ref configuracioin de la biblioteca "config"
- * @param gpio 
- * @param bit
+ * @param gpio Número del puerto GPIO.
+ * @param bit Número del bit del pin.
  * @return digital_output_t 
  */
 
@@ -70,75 +70,75 @@ digital_output_t digital_output_create(uint8_t gpio, uint8_t bit);
 //las otras 3 van a la funcion main en la parte del while
 
 /**
- * @brief 
+ * @brief  Activa (pone en alto) una salida digital.
  * 
- * @param self 
+ * @param self Puntero a la salida digital.
  */
 void digital_output_activate(digital_output_t self);
 
 /**
- * @brief 
+ * @brief  Desactiva (pone en bajo) una salida digital.
  * 
- * @param self 
+ * @param self Puntero a la salida digital.
  */
 
 void digital_output_deactivate(digital_output_t self);
 
 /**
- * @brief 
+ * @brief Invierte el estado lógico de una salida digital.
  * 
- * @param self 
+ * @param self Puntero a la salida digital.
  */
 
 void digital_output_toggle(digital_output_t self);
 
 /**
- * @brief 
+ * @brief Crea una entrada digital.
  * 
- * @param gpio 
- * @param bit 
- * @param inverted 
- * @return digital_input_t 
+ * @param gpio Número del puerto GPIO.
+ * @param bit Número del bit del pin.
+ * @param inverted `true` si el estado lógico debe interpretarse como invertido.
+ * @return digital_input_t Puntero a la entrada digital creada.
  */
 
 digital_input_t digital_input_create(uint8_t gpio, uint8_t bit, bool inverted);
 
 /**
- * @brief 
+ * @brief Consulta si la entrada está actualmente activa.
  * 
- * @param input 
- * @return true 
- * @return false 
+ * @param input Puntero a la entrada digital.
+ * @return true Si la entrada está activa.
+ * @return false Si la entrada está inactiva.
  */
 
 
 bool digital_input_get_is_active(digital_input_t input);
 
 /**
- * @brief 
+ * @brief indica si la entrada fuue activada desde la ultima consulta
  * 
- * @param input 
- * @return true 
- * @return false 
+ * @param input Puntero a la entrada digital.
+ * @return true Si la entrada fue activada.
+ * @return false En caso contrario.
  */
 
 bool digital_was_activated(digital_input_t input);
 
 /**
- * @brief 
+ * @brief indica si la entrada fue activada desde la ultima consulta
  * 
- * @param input 
- * @return true 
- * @return false 
+ * @param input Puntero a la entrada digital.
+ * @return true Si la entrada fue desactivada.
+ * @return false En caso contrario.
  */
 
 bool digital_was_deactivated(digital_input_t input);
 
 /**
- * @brief 
+ * @brief me indica si el estado de la entrada cambió desde la ultima consulta
  * 
- * @param input 
- * @return digital_states_t 
+ * @param input puntero a la entrada digital
+ * @return digital_states_t estado del cambio: activada, desactivada o sin cambio.
  */
 
 digital_states_t digital_was_changed(digital_input_t input);
